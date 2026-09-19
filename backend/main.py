@@ -18,11 +18,14 @@ from sentence_transformers import SentenceTransformer
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
-RISK_PATH = PROJECT_ROOT / "models" / "ai_guidance_context.csv"
-ML_DATASET_PATH = PROJECT_ROOT / "data" / "kerala_ml_dataset.csv"
+# Runtime data used by the deployed backend
+DEPLOYMENT_DATA = PROJECT_ROOT / "deployment_data"
 
-EMBEDDINGS_PATH = PROJECT_ROOT / "models" / "rag" / "embeddings.npy"
-CHUNKS_PATH = PROJECT_ROOT / "models" / "rag" / "chunks.npy"
+RISK_PATH = DEPLOYMENT_DATA / "ai_guidance_context.csv"
+ML_DATASET_PATH = DEPLOYMENT_DATA / "kerala_ml_dataset.csv"
+
+EMBEDDINGS_PATH = DEPLOYMENT_DATA / "rag" / "embeddings.npy"
+CHUNKS_PATH = DEPLOYMENT_DATA / "rag" / "chunks.npy"
 
 
 # ============================================================
@@ -55,7 +58,28 @@ MODEL = "openrouter/free"
 # 4. LOAD DATA
 # ============================================================
 
-print("[INFO] Loading Āśraya data...")
+print("[INFO] Loading Asraya data...")
+
+if not RISK_PATH.exists():
+    raise FileNotFoundError(
+        f"Risk data not found: {RISK_PATH}"
+    )
+
+if not ML_DATASET_PATH.exists():
+    raise FileNotFoundError(
+        f"ML dataset not found: {ML_DATASET_PATH}"
+    )
+
+if not EMBEDDINGS_PATH.exists():
+    raise FileNotFoundError(
+        f"RAG embeddings not found: {EMBEDDINGS_PATH}"
+    )
+
+if not CHUNKS_PATH.exists():
+    raise FileNotFoundError(
+        f"RAG chunks not found: {CHUNKS_PATH}"
+    )
+
 
 risk_df = pd.read_csv(RISK_PATH)
 
@@ -94,7 +118,7 @@ print(f"[OK] RAG chunks: {len(chunks)}")
 # ============================================================
 
 app = FastAPI(
-    title="Āśraya AI API",
+    title="Asraya AI API",
     description="Flood risk assessment and AI preparedness guidance API",
     version="1.0.0"
 )
@@ -131,7 +155,7 @@ class GuidanceRequest(BaseModel):
 def root():
 
     return {
-        "name": "Āśraya AI",
+        "name": "Asraya AI",
         "status": "running",
         "message": "Flood risk and AI guidance API is active."
     }
@@ -314,7 +338,7 @@ def get_risk_context(
     rainfall = risk_response["rainfall"]
 
     return f"""
-ĀŚRAYA MODEL-DERIVED RISK CONTEXT
+ASRAYA MODEL-DERIVED RISK CONTEXT
 
 District: {risk_response["district"]}
 Date: {risk_response["date"]}
@@ -370,7 +394,7 @@ def generate_guidance(
     context = risk_context + rag_context
 
     system_prompt = """
-You are Āśraya AI, an AI-powered community disaster
+You are Asraya AI, an AI-powered community disaster
 resilience assistant.
 
 Your purpose is to help people understand flood risk
@@ -415,7 +439,7 @@ USER QUESTION:
 
 {question}
 
-ĀŚRAYA CONTEXT:
+ASRAYA CONTEXT:
 
 {context}
 
@@ -477,7 +501,7 @@ def guidance(
 def startup_event():
 
     print("\n" + "=" * 60)
-    print("ĀŚRAYA AI BACKEND")
+    print("ASRAYA AI BACKEND")
     print("=" * 60)
 
     print("[OK] FastAPI started")
