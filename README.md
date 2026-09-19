@@ -1,776 +1,592 @@
-\# Āśraya AI
+# Āśraya AI
 
+## An AI-Driven Community Disaster Resilience Platform
 
+**Prepare. Protect. Recover.**
 
-\### AI-Driven Community Disaster Resilience Platform
+Āśraya AI is an AI-powered disaster resilience platform designed to help communities better understand flood risk and access practical preparedness guidance.
 
+The current MVP focuses on **district-level flood risk assessment in Kerala, India**, using historical flood records and rainfall patterns. It combines a machine learning model with a retrieval-augmented AI guidance system to provide both risk context and actionable preparedness information.
 
+> **Important:** Āśraya AI is a research and decision-support prototype. It does not replace official weather alerts, flood warnings, evacuation orders, emergency services, or government authorities.
 
-\*\*Prepare. Protect. Recover.\*\*
+---
 
+## Problem
 
+Floods can cause significant loss of life, infrastructure damage, displacement, and disruption to communities.
 
-Āśraya AI is an AI-powered disaster resilience platform focused on helping communities understand flood risk and access practical preparedness guidance.
+Although weather information and disaster alerts are increasingly available, people may still struggle to understand:
 
+* How their local conditions relate to historical flood patterns
+* Whether current rainfall conditions indicate elevated historical risk
+* What practical steps they should take before, during, and after a flood
+* Where to find reliable preparedness information
 
+This challenge can be particularly significant for rural and resource-constrained communities.
 
-The current MVP focuses on \*\*Kerala, India\*\*, using historical flood events and rainfall patterns to estimate the likelihood of a \*\*recorded flood onset on the following day\*\* and provide context-aware flood preparedness guidance.
+---
 
+## Solution
 
+Āśraya AI combines historical data, machine learning, and an AI preparedness assistant into a single platform.
 
-\---
+The current system:
 
+1. Allows a user to select a Kerala district and date
+2. Retrieves historical rainfall information
+3. Estimates the likelihood of a recorded flood onset on the following day based on historical patterns
+4. Converts the model score into an interpretable risk category
+5. Provides rainfall-based context
+6. Uses a retrieval-augmented AI assistant to provide preparedness guidance from a trusted knowledge base
 
+The goal is not to replace official disaster-management systems, but to make existing information easier to understand and act upon.
 
-\## Problem
+---
 
-
-
-Floods can cause severe damage to communities, infrastructure, livelihoods, and human lives.
-
-
-
-While official warnings and emergency systems are essential, communities also need accessible information that helps them understand:
-
-
-
-\* What the available risk information means
-
-\* How rainfall patterns relate to historical flood events
-
-\* What they can do before flooding
-
-\* How to stay safer during flooding
-
-\* What precautions to take after flooding
-
-
-
-Āśraya AI explores how machine learning and retrieval-augmented AI can support these needs through a simple community-facing interface.
-
-
-
-\---
-
-
-
-\## Solution
-
-
-
-Āśraya combines a historical flood-risk assessment model with an AI preparedness assistant.
-
-
+## System Architecture
 
 ```text
-
-Historical Flood Data
-
-&#x20;       +
-
-Historical Rainfall
-
-&#x20;       ↓
-
-&#x20;  ML Risk Model
-
-&#x20;       ↓
-
-&#x20;Flood Risk Assessment
-
-&#x20;       ↓
-
-&#x20;District + Date + Risk Context
-
-&#x20;       ↓
-
-&#x20;RAG Knowledge Base
-
-&#x20;       +
-
-&#x20;     LLM
-
-&#x20;       ↓
-
-&#x20;AI Preparedness Guidance
-
+                         ĀŚRAYA AI
+                             |
+             +---------------+---------------+
+             |                               |
+             v                               v
+       Flood Risk ML                    AI Guidance
+             |                               |
+       Rainfall Features                RAG Knowledge
+             |                               |
+             +---------------+---------------+
+                             |
+                             v
+                     Web Interface
 ```
 
+---
 
+## Current MVP
 
-The platform is designed around three stages:
+The current MVP includes:
 
+* Kerala district selection
+* Historical rainfall data
+* Historical flood-event data
+* Flood-onset classification model
+* Risk score and risk category
+* Rainfall-based contextual information
+* AI preparedness assistant
+* Retrieval-augmented generation (RAG)
+* Trusted flood preparedness knowledge base
+* Web-based dashboard
+* Safety and limitation disclaimers
 
+---
 
-\*\*Assess → Understand → Prepare\*\*
+## Machine Learning Approach
 
-
-
-\---
-
-
-
-\## Current MVP
-
-
-
-The current MVP provides:
-
-
-
-\* Kerala district selection
-
-\* Historical rainfall information
-
-\* Historical flood-event data
-
-\* Next-day flood-onset classification
-
-\* Model-derived risk score
-
-\* Risk categories
-
-\* Rainfall indicators
-
-\* Context-aware AI preparedness guidance
-
-\* Retrieval-augmented generation (RAG)
-
-\* FastAPI backend
-
-\* Next.js web interface
-
-
-
-\---
-
-
-
-\## Machine Learning
-
-
-
-The ML component uses historical rainfall indicators to estimate whether a \*\*recorded flood onset occurred on the following day\*\*.
-
-
-
-The model uses rainfall information available through day \*\*T\*\* to assess the target for day \*\*T+1\*\*.
-
-
-
-\### Features
-
-
-
-\* 1-day cumulative rainfall
-
-\* 3-day cumulative rainfall
-
-\* 7-day cumulative rainfall
-
-\* 30-day cumulative rainfall
-
-\* Maximum rainfall within the previous 3 days
-
-\* Maximum rainfall within the previous 7 days
-
-
-
-\### Models explored
-
-
-
-\* Logistic Regression
-
-\* Random Forest
-
-
-
-A chronological train/test split is used:
-
-
+The model is designed around the following prediction task:
 
 ```text
-
-Training: before 2020
-
-Testing:  2020 onward
-
+Information available on Day T
+            |
+            v
+     Rainfall up to T
+            |
+            v
+      ML Risk Model
+            |
+            v
+Flood onset recorded on Day T+1
 ```
 
+The model does not use rainfall from the prediction day or future dates when generating the prediction.
 
+### Input Features
 
-Because recorded flood events are highly imbalanced relative to non-event days, model evaluation considers metrics such as:
+The current model uses rainfall indicators calculated from historical rainfall data:
 
+* 1-day cumulative rainfall
+* 3-day cumulative rainfall
+* 7-day cumulative rainfall
+* 30-day cumulative rainfall
+* Maximum rainfall within the previous 3 days
+* Maximum rainfall within the previous 7 days
 
+### Models Evaluated
 
-\* Precision
+Two models were evaluated:
 
-\* Recall
+* Logistic Regression
+* Random Forest
 
-\* F1-score
-
-\* ROC-AUC
-
-\* PR-AUC
-
-
-
-Accuracy is not treated as the primary evaluation metric.
-
-
-
-\---
-
-
-
-\## Risk Assessment
-
-
-
-The application converts the model output into four presentation categories:
-
-
-
-| Risk Category | Model Score |
-
-| ------------- | ----------: |
-
-| LOW           |       < 10% |
-
-| MODERATE      |      10–30% |
-
-| HIGH          |      30–60% |
-
-| VERY HIGH     |       ≥ 60% |
-
-
-
-These thresholds are \*\*presentation thresholds used by the MVP\*\* and are not official government flood-warning standards.
-
-
-
-The model score is also \*\*not a calibrated probability\*\* and should not be interpreted as an exact percentage chance of flooding.
-
-
-
-\---
-
-
-
-\## AI Preparedness Assistant
-
-
-
-Āśraya uses a small trusted knowledge base containing practical flood preparedness, safety, and recovery guidance.
-
-
-
-The system uses \*\*Retrieval-Augmented Generation (RAG)\*\* to retrieve relevant information before generating a response.
-
-
-
-The assistant can provide guidance related to:
-
-
-
-\### Before flooding
-
-
-
-\* Emergency preparedness
-
-\* Essential supplies
-
-\* Safer locations
-
-\* Evacuation planning
-
-\* Protecting vehicles and valuables
-
-\* Following official information
-
-
-
-\### During flooding
-
-
-
-\* Avoiding floodwater
-
-\* Electrical safety
-
-\* Moving to safer locations
-
-\* Protecting children and vulnerable people
-
-\* Using verified emergency information
-
-
-
-\### After flooding
-
-
-
-\* Safe return
-
-\* Electrical safety
-
-\* Drinking-water precautions
-
-\* Public-health guidance
-
-\* Reporting and documenting damage
-
-
-
-Āśraya is an informational support system and does \*\*not\*\* issue official evacuation orders or replace emergency authorities.
-
-
-
-\---
-
-
-
-\## Technology Stack
-
-
-
-\### Machine Learning
-
-
-
-\* Python
-
-\* Pandas
-
-\* NumPy
-
-\* Scikit-learn
-
-
-
-\### Data
-
-
-
-\* India Flood Inventory
-
-\* Historical rainfall data
-
-\* Kerala district boundaries
-
-\* Open/public data sources
-
-
-
-\### AI
-
-
-
-\* Sentence Transformers
-
-\* Retrieval-Augmented Generation
-
-\* OpenRouter-compatible LLM API
-
-
-
-\### Backend
-
-
-
-\* FastAPI
-
-\* Uvicorn
-
-\* Python
-
-
-
-\### Frontend
-
-
-
-\* Next.js
-
-\* React
-
-\* TypeScript
-
-\* Tailwind CSS
-
-\* React Markdown
-
-
-
-\---
-
-
-
-\## Project Structure
-
-
+A chronological train/test split was used:
 
 ```text
+Training period: Before 2020
+Testing period:  2020 onwards
+```
 
-asraya-ai/
+This approach avoids randomly mixing future observations into the training data.
 
-│
+### Model Evaluation
 
+Because recorded flood-onset events are rare compared with non-flood days, accuracy alone is not an appropriate measure of performance.
+
+The evaluation therefore considers:
+
+* Precision
+* Recall
+* F1-score
+* ROC-AUC
+* Precision-Recall AUC
+* Confusion matrix
+
+The model demonstrates useful predictive signal, but it also produces false positives. The current system should therefore be treated as a **risk-assessment and research prototype**, not an operational flood-warning system.
+
+---
+
+## Risk Assessment
+
+The model produces a continuous risk score which is converted into four presentation categories:
+
+| Risk Score  | Category  |
+| ----------- | --------- |
+| < 0.10      | Low       |
+| 0.10 - 0.30 | Moderate  |
+| 0.30 - 0.60 | High      |
+| >= 0.60     | Very High |
+
+These thresholds are **presentation thresholds created for the prototype**. They are not official flood-warning thresholds.
+
+The displayed score should not be interpreted as a calibrated probability of a flood occurring.
+
+For example, a score of `0.58` means that the model produced a relatively elevated risk score for that historical situation. It does not mean there is exactly a 58% chance of flooding.
+
+---
+
+## AI Preparedness Assistant
+
+Āśraya AI includes an AI guidance layer designed to answer questions related to flood preparedness.
+
+The system uses Retrieval-Augmented Generation (RAG):
+
+```text
+User Question
+      |
+      v
+Semantic Retrieval
+      |
+      v
+Trusted Preparedness Knowledge
+      |
+      v
+Relevant Context
+      |
+      v
+LLM
+      |
+      v
+Preparedness Guidance
+```
+
+The knowledge base contains guidance covering:
+
+### Before a Flood
+
+* Monitoring official information
+* Preparing emergency supplies
+* Protecting important documents
+* Charging phones and power banks
+* Identifying safer locations and routes
+* Moving vehicles and equipment to safer areas
+
+### During a Flood
+
+* Following official instructions
+* Moving to safer or higher locations when instructed
+* Avoiding floodwater
+* Avoiding flooded roads
+* Taking additional care of children and vulnerable people
+* Following reliable official information
+
+### After a Flood
+
+* Returning only when authorities indicate that it is safe
+* Avoiding contaminated or standing water
+* Taking electrical safety precautions
+* Following public-health guidance regarding drinking water
+* Documenting damage and contacting appropriate authorities
+
+The AI assistant is intended to make preparedness information easier to access and understand.
+
+---
+
+## Data Sources
+
+### Flood Data
+
+The project uses the:
+
+**India Flood Inventory-Impacts (IFI-Impacts) [1967-2023]**
+
+Developed by the HydroSense Lab at IIT Delhi and published through Zenodo.
+
+The project uses historical flood-event information for Kerala to construct district-level flood-event records and prediction targets.
+
+### Rainfall Data
+
+The MVP uses historical rainfall data from **ERA5 through the Open-Meteo API**.
+
+Rainfall indicators are aggregated at the Kerala district level for the modeling workflow.
+
+---
+
+## Technology Stack
+
+### Machine Learning
+
+* Python
+* Pandas
+* NumPy
+* Scikit-learn
+* Random Forest
+* Logistic Regression
+
+### AI / RAG
+
+* Sentence Transformers
+* `all-MiniLM-L6-v2`
+* Retrieval-Augmented Generation
+* OpenRouter API
+* Large Language Model
+
+### Backend
+
+* Python
+* FastAPI
+* Uvicorn
+
+### Frontend
+
+* Next.js
+* React
+* TypeScript
+* Tailwind CSS
+* React Markdown
+
+### Data Processing
+
+* GeoPandas
+* Shapely
+* Rasterio
+* Open-Meteo historical weather data
+
+---
+
+## Project Structure
+
+```text
+Asraya AI/
+|
 ├── backend/
-
 │   └── main.py
-
-│
-
+|
 ├── data/
-
-│   ├── India\_Flood\_Inventory\_v3.csv
-
-│   ├── district\_nwic.GeoJSON
-
-│   ├── kerala\_district\_boundaries.geojson
-
-│   ├── kerala\_district\_flood\_events.csv
-
-│   ├── kerala\_flood\_events.csv
-
-│   ├── kerala\_flood\_targets.csv
-
-│   └── knowledge\_base/
-
-│       └── flood\_preparedness.txt
-
-│
-
+│   ├── India_Flood_Inventory_v3.csv
+│   ├── district_nwic.GeoJSON
+│   ├── kerala_district_boundaries.geojson
+│   ├── kerala_district_flood_events.csv
+│   ├── kerala_flood_events.csv
+│   ├── kerala_flood_targets.csv
+│   └── knowledge_base/
+│       └── flood_preparedness.txt
+|
 ├── frontend/
-
 │   ├── app/
-
 │   ├── public/
-
 │   ├── package.json
-
 │   └── ...
-
-│
-
+|
 ├── notebooks/
-
-│   ├── 01\_explore\_flood\_data.py
-
-│   ├── 02\_prepare\_kerala\_data.py
-
+│   ├── 01_explore_flood_data.py
+│   ├── 02_prepare_kerala_data.py
+│   ├── 03_create_district_events.py
 │   ├── ...
-
-│   ├── 17\_train\_flood\_models.py
-
-│   ├── 20\_build\_rag.py
-
-│   ├── 22\_ai\_guidance\_engine.py
-
-│   └── 24\_generate\_ai\_guidance.py
-
-│
-
+│   └── 24_generate_ai_guidance.py
+|
+├── deployment_data/
+│   └── ...
+|
+├── models/
+│   └── ...
+|
 ├── .gitignore
-
-└── README.md
-
+├── README.md
+└── requirements.txt
 ```
 
+---
 
+## Running Locally
 
-Generated datasets and model/RAG artifacts are intentionally excluded from the repository and can be recreated using the processing scripts.
-
-
-
-\---
-
-
-
-\## Running Locally
-
-
-
-\### 1. Clone the repository
-
-
+### 1. Clone the Repository
 
 ```bash
-
-git clone https://github.com/YOUR\_USERNAME/asraya-ai.git
-
+git clone https://github.com/YOUR_USERNAME/asraya-ai.git
 cd asraya-ai
-
 ```
 
+### 2. Create a Python Environment
 
-
-\### 2. Create the Python environment
-
-
-
-```powershell
-
+```bash
 python -m venv .venv
-
 ```
-
-
 
 Activate it on Windows:
 
-
-
 ```powershell
-
-.venv\\Scripts\\Activate.ps1
-
+.venv\Scripts\Activate.ps1
 ```
 
+### 3. Install Backend Dependencies
 
-
-\### 3. Install backend dependencies
-
-
-
-```powershell
-
-pip install pandas numpy scikit-learn fastapi uvicorn python-dotenv openai sentence-transformers
-
+```bash
+pip install -r requirements.txt
 ```
 
-
-
-\### 4. Configure environment variables
-
-
+### 4. Configure Environment Variables
 
 Create a `.env` file in the project root:
 
-
-
 ```env
-
-OPENROUTER\_API\_KEY=your\_api\_key\_here
-
+OPENROUTER_API_KEY=your_api_key_here
 ```
 
+Never commit the `.env` file to GitHub.
 
+### 5. Start the Backend
 
-\*\*Never commit `.env` to GitHub.\*\*
-
-
-
-\### 5. Start the backend
-
-
-
-```powershell
-
+```bash
 uvicorn backend.main:app --reload
-
 ```
 
-
-
-The backend will run at:
-
-
+The API will be available at:
 
 ```text
-
 http://127.0.0.1:8000
-
 ```
 
-
-
-\### 6. Start the frontend
-
-
+### 6. Start the Frontend
 
 Open another terminal:
 
-
-
 ```powershell
-
 cd frontend
-
 npm install
-
 npm run dev
-
 ```
 
-
-
-Open:
-
-
+The frontend will normally be available at:
 
 ```text
-
 http://localhost:3000
-
 ```
 
+---
 
+## API Endpoints
 
-\---
+### Health Check
 
+```text
+GET /
+```
 
+### District List
 
-\## Important Limitations
+```text
+GET /districts
+```
 
+### Historical Risk Assessment
 
+```text
+GET /risk?district=Kottayam&date=2021-11-10
+```
 
-Āśraya AI is currently a research/project MVP.
+### AI Guidance
 
+```text
+POST /guidance
+```
 
+Example request:
 
-The system:
+```json
+{
+  "question": "What should I do if heavy rainfall is expected?",
+  "district": "Kottayam",
+  "date": "2021-11-10"
+}
+```
 
+---
 
+## Example Risk Assessment
 
-\* Uses historical data rather than real-time flood monitoring
+Example historical assessment:
 
-\* Focuses on Kerala
+```text
+District: Kottayam
+Date: 2021-11-10
+Risk Category: HIGH
+Risk Score: 0.582
 
-\* Uses historical rainfall patterns as the primary ML input
+Rainfall:
+1 day: 8.7 mm
+3 days: 17.7 mm
+7 days: 57.6 mm
+30 days: 350.0 mm
+```
 
-\* Predicts recorded flood onset rather than exact flood depth, location, or severity
+This represents a **model-derived historical assessment** and should not be interpreted as an official warning.
 
-\* Does not provide official warnings
+---
 
-\* Does not replace government disaster-management systems
+## Limitations
 
-\* May produce false positives and false negatives
+The current MVP has several limitations.
 
-\* Uses a model score that has not been probability-calibrated
+### Historical Data
 
+The model learns from recorded historical flood events. A value of zero means that a flood onset was not recorded in the dataset; it does not prove that flooding did not occur.
 
+### Class Imbalance
 
-For real emergencies, users should follow official government and emergency-service instructions.
+Flood-onset events are much less frequent than non-flood days. This creates a significant class-imbalance problem and contributes to false positives.
 
+### Rainfall-Only Modeling
 
+The current model primarily uses rainfall-derived features.
 
-\---
+Important factors such as:
 
+* Elevation
+* Slope
+* River levels
+* Soil moisture
+* Drainage
+* Land use
+* Satellite observations
+* Dam operations
+* Real-time hydrological conditions
 
+are not currently included.
 
-\## Future Scope
+### Geographic Scope
 
+The current MVP focuses on Kerala, India.
 
+### Not an Official Warning System
 
-Potential future improvements include:
+Āśraya AI does not issue official flood warnings or evacuation orders.
 
+Users should follow instructions from relevant government authorities and emergency services during real-world emergencies.
 
+---
 
-\* Real-time rainfall and weather integration
+## Future Scope
 
-\* Elevation and slope features
+Planned future improvements include:
 
-\* Satellite imagery
+* Real-time rainfall monitoring
+* Satellite-based flood detection
+* Elevation and slope features
+* River and reservoir information
+* More advanced hydrological features
+* Community flood reporting
+* Multilingual support
+* Localized voice assistance
+* Notification systems
+* Mobile application
+* Improved model calibration
+* Broader geographic coverage
+* Integration with additional official disaster-management data sources
 
-\* River and reservoir information
+---
 
-\* Community flood reporting
-
-\* Multilingual guidance
-
-\* Localized emergency information
-
-\* Notifications and alerts
-
-\* More extensive geographical coverage
-
-\* Improved model calibration
-
-\* Larger and more diverse training datasets
-
-
-
-\---
-
-
-
-\## SDG Alignment
-
-
+## SDG Alignment
 
 Āśraya AI primarily supports:
 
+### SDG 13 — Climate Action
 
+The platform focuses on climate-related disaster preparedness, risk awareness, and community resilience.
 
-\*\*SDG 13 — Climate Action\*\*
+### SDG 11 — Sustainable Cities and Communities
 
+The project also contributes to disaster resilience and safer communities by improving access to local risk information and preparedness guidance.
 
+---
 
-and contributes to:
+## Project Status
 
+**Current Status: MVP / Research Prototype**
 
+The current system includes:
 
-\*\*SDG 11 — Sustainable Cities and Communities\*\*
+* Historical flood data processing
+* Kerala district-level dataset creation
+* Rainfall feature engineering
+* Flood-onset ML modeling
+* Risk assessment
+* RAG knowledge retrieval
+* AI preparedness guidance
+* FastAPI backend
+* Next.js web interface
 
+The project is currently being prepared for deployment and further evaluation.
 
+---
 
-The project focuses on improving community preparedness and resilience to climate-related disaster risks.
+## Responsible Use
 
+Āśraya AI is designed as an educational and research-oriented disaster resilience tool.
 
+It should not be used as the sole basis for:
 
-\---
+* Emergency evacuation decisions
+* Medical decisions
+* Disaster-response decisions
+* Infrastructure safety decisions
+* Government emergency management
 
+During an actual emergency, always follow current instructions from official authorities and emergency services.
 
+---
 
-\## Project Status
+## License
 
+This project is currently intended for educational, research, and demonstration purposes.
 
+A formal open-source license may be added in a future release.
 
-\*\*Current status: Working MVP\*\*
+---
 
+## Author
 
-
-The complete local pipeline is operational:
-
-
-
-```text
-
-Data → Feature Engineering → ML → Risk Assessment
-
-&#x20;                                     ↓
-
-&#x20;                             RAG + LLM Guidance
-
-&#x20;                                     ↓
-
-&#x20;                              Web Interface
-
-```
-
-
-
-\---
-
-
-
-\## Disclaimer
-
-
-
-Āśraya AI provides model-derived historical risk information and general preparedness guidance for educational and research purposes.
-
-
-
-It is \*\*not an official flood-warning system\*\*, emergency-management authority, or evacuation service.
+**Anjana S V**
 
 
 
-For active emergencies, always follow instructions from local authorities and official emergency services.
+---
 
+## Acknowledgements
 
+This project makes use of publicly available datasets, open-source software, and publicly accessible AI and weather-data services.
 
+The project is intended to demonstrate how machine learning, retrieval-augmented generation, and accessible web technologies can be combined to support community disaster resilience.
+
+---
+
+**Āśraya AI — Prepare. Protect. Recover.**
