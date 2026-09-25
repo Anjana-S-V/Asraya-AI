@@ -19,7 +19,7 @@ from sentence_transformers import SentenceTransformer
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 # Runtime data used by the deployed backend
-DEPLOYMENT_DATA = PROJECT_ROOT / "deployment_data"
+DEPLOYMENT_DATA = Path(__file__).resolve().parent / "deployment_data"
 
 RISK_PATH = DEPLOYMENT_DATA / "ai_guidance_context.csv"
 ML_DATASET_PATH = DEPLOYMENT_DATA / "kerala_ml_dataset.csv"
